@@ -1,779 +1,157 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Bladder">
-    <title>Bladder Timer</title>
+    <title>Timer</title>
     <style>
-        * {
-            box-sizing: border-box;
+        body {
+            background: black;
+            color: white;
+            font-family: -apple-system;
             margin: 0;
-            padding: 0;
-            font-family: -apple-system, system-ui, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            touch-action: manipulation;
-            background-color: #000;
-            color: #fff;
-        }
-        
-        /* Creates a curved screen effect like on Apple Watch */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.8);
-            border-radius: 15%;
-            pointer-events: none;
-            z-index: 10;
-        }
-        
-        .watch-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
             padding: 8px;
-            background: linear-gradient(145deg, rgba(15,15,25,1) 0%, rgba(30,30,45,1) 100%);
-            overflow: hidden;
-        }
-        
-        .title {
             font-size: 16px;
-            font-weight: 600;
             text-align: center;
-            margin-bottom: 5px;
-            letter-spacing: 0.5px;
-            background: linear-gradient(90deg, #9CECFB, #65C7F7, #0052D4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(101, 199, 247, 0.2);
         }
         
-        /* Timer screen */
-        .timer-screen {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            height: 100%;
+        .timer {
+            font-size: 32px;
+            margin: 20px 0;
+            font-weight: bold;
         }
         
-        .timer-circle-container {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            margin-bottom: 20px;
-        }
-        
-        .timer-circle-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        .timer-circle-progress {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: conic-gradient(transparent 0%, transparent 100%);
-            transition: background 0.1s linear;
-        }
-        
-        .timer-circle-inner {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3), 
-                        0 0 60px rgba(101, 199, 247, 0.1);
-        }
-        
-        .timer-display {
-            font-size: 44px;
-            font-weight: 300;
-            text-align: center;
-            color: #fff;
-            transition: all 0.3s ease;
-        }
-        
-        .timer-label {
-            font-size: 14px;
-            opacity: 0.7;
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-        
-        .timer-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            gap: 12px;
-        }
-        
-        .watch-btn {
-            width: 80%;
-            padding: 12px 0;
-            border-radius: 25px;
+        button {
+            background: #0066ff;
+            color: white;
             border: none;
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-            text-align: center;
-            cursor: pointer;
-            user-select: none;
-            -webkit-user-select: none;
-            transition: all 0.3s ease;
-            background: linear-gradient(135deg, #0066ff, #3d9dff);
-            box-shadow: 0 2px 8px rgba(0, 102, 255, 0.3);
-            letter-spacing: 0.5px;
-        }
-        
-        .watch-btn:active {
-            transform: scale(0.96);
-            box-shadow: 0 1px 4px rgba(0, 102, 255, 0.2);
-        }
-        
-        .btn-danger {
-            background: linear-gradient(135deg, #ff416c, #ff4b2b);
-            box-shadow: 0 2px 8px rgba(255, 65, 108, 0.3);
-        }
-        
-        .btn-success {
-            background: linear-gradient(135deg, #00b09b, #96c93d);
-            box-shadow: 0 2px 8px rgba(0, 176, 155, 0.3);
-        }
-        
-        .btn-secondary {
-            background: linear-gradient(135deg, #8e9eab, #657389);
-            box-shadow: 0 2px 8px rgba(142, 158, 171, 0.3);
-        }
-        
-        /* Results screen */
-        .results-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start;
-            width: 100%;
-            height: 100%;
-            padding-top: 15px;
-        }
-        
-        .result-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 15px;
-            padding: 12px;
-            width: 90%;
-            margin-bottom: 15px;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .result-label {
-            font-size: 13px;
-            opacity: 0.7;
-            margin-bottom: 4px;
-            text-align: center;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 500;
-        }
-        
-        .result-value {
-            font-size: 22px;
-            font-weight: 400;
-            text-align: center;
-            margin-bottom: 3px;
-            color: #fff;
-        }
-        
-        .option-select {
-            width: 90%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            color: #fff;
-            font-size: 16px;
-            text-align-last: center;
-            appearance: none;
-            -webkit-appearance: none;
-            backdrop-filter: blur(5px);
-        }
-        
-        .option-select:focus {
-            outline: none;
-            border-color: #0066ff;
-            box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.2);
-        }
-        
-        /* Custom select styling */
-        .select-wrapper {
-            position: relative;
-            width: 90%;
-            margin-bottom: 15px;
-        }
-        
-        .select-wrapper::after {
-            content: '⌄';
-            position: absolute;
-            right: 15px;
-            top: 10px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 16px;
-            pointer-events: none;
-        }
-        
-        /* History screen */
-        .history-screen {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            overflow-y: auto;
-            padding-top: 10px;
-        }
-        
-        .history-title {
-            font-size: 16px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            letter-spacing: 0.5px;
-            background: linear-gradient(90deg, #9CECFB, #65C7F7, #0052D4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .history-list {
-            width: 90%;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            max-height: calc(100% - 100px);
-            padding-right: 5px;
-        }
-        
-        .history-item {
-            padding: 12px;
-            margin-bottom: 10px;
-            border-radius: 12px;
-            font-size: 14px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(5px);
-        }
-        
-        .history-date {
-            font-size: 12px;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 5px;
-            font-weight: 500;
-        }
-        
-        .history-detail {
-            font-size: 14px;
-            margin-bottom: 3px;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .history-label {
-            opacity: 0.7;
-        }
-        
-        .history-value {
-            font-weight: 500;
-        }
-        
-        /* Nav dots */
-        .nav-dots {
-            position: absolute;
-            bottom: 15px;
-            left: 0;
-            right: 0;
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background-color: rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-        
-        .dot.active {
-            background-color: #fff;
-            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
-            transform: scale(1.2);
-        }
-        
-        /* Crown indicator (to simulate digital crown) */
-        .crown-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #FF5F6D, #FFC371);
-            box-shadow: 0 0 5px rgba(255, 95, 109, 0.5);
-        }
-        
-        /* Message toast */
-        .toast {
-            position: absolute;
-            bottom: 45px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 8px 16px;
             border-radius: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            font-size: 14px;
-            text-align: center;
-            opacity: 0;
-            transition: all 0.3s ease;
-            pointer-events: none;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 0;
+            width: 100%;
+            margin: 5px 0;
+            font-size: 16px;
         }
         
-        .toast.visible {
-            opacity: 1;
-            transform: translateX(-50%) translateY(-10px);
+        .danger {
+            background: #ff3b30;
         }
         
-        /* Sync indicator */
-        .sync-indicator {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00b09b, #96c93d);
-            box-shadow: 0 0 5px rgba(0, 176, 155, 0.5);
-            z-index: 2;
+        .success {
+            background: #34c759;
         }
         
-        .sync-indicator.syncing {
-            animation: pulse 1s infinite;
+        select {
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 10px;
         }
         
-        @keyframes pulse {
-            0% { opacity: 1; box-shadow: 0 0 5px rgba(0, 176, 155, 0.5); }
-            50% { opacity: 0.5; box-shadow: 0 0 10px rgba(0, 176, 155, 0.8); }
-            100% { opacity: 1; box-shadow: 0 0 5px rgba(0, 176, 155, 0.5); }
-        }
-        
-        /* Water drop animation for active timer */
-        .water-drop {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #65C7F7;
-            opacity: 0;
-            z-index: 2;
-            animation: fall 3s ease-in infinite;
-        }
-        
-        @keyframes fall {
-            0% { 
-                transform: translateY(0) scale(0.5); 
-                opacity: 0.7;
-            }
-            70% { 
-                transform: translateY(150px) scale(1); 
-                opacity: 0;
-            }
-            100% { 
-                transform: translateY(150px) scale(1); 
-                opacity: 0;
-            }
-        }
-        
-        /* Transition animation */
-        .screen-transition {
-            animation: fadeTransition 0.3s ease;
-        }
-        
-        @keyframes fadeTransition {
-            from { opacity: 0; transform: translateX(20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        /* Watch face subtle glow effect */
-        .watch-glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, rgba(101, 199, 247, 0.1) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 1;
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="watch-container">
-        <div class="watch-glow"></div>
-        <div class="sync-indicator" id="syncIndicator"></div>
-        <div class="crown-indicator"></div>
-        
-        <!-- Timer Screen -->
-        <div class="timer-screen" id="timerScreen">
-            <div class="title">Bladder Diary</div>
-            
-            <div class="timer-circle-container">
-                <div class="timer-circle-bg"></div>
-                <div class="timer-circle-progress" id="timerProgress"></div>
-                <div class="timer-circle-inner">
-                    <div class="timer-display" id="timerDisplay">00:00</div>
-                    <div class="timer-label" id="timerLabel">SECONDS</div>
-                </div>
-            </div>
-            
-            <div class="timer-controls">
-                <button id="startStopBtn" class="watch-btn">Start</button>
-                <button id="historyBtn" class="watch-btn btn-secondary">History</button>
-            </div>
-        </div>
-        
-        <!-- Results Screen -->
-        <div class="results-screen" id="resultsScreen">
-            <div class="title">Record Entry</div>
-            
-            <div class="result-card">
-                <div class="result-label">Duration</div>
-                <div class="result-value" id="resultDuration">0 seconds</div>
-            </div>
-            
-            <div class="select-wrapper">
-                <select id="urgencySelect" class="option-select">
-                    <option value="">Urgency Level</option>
-                    <option value="0">0 - None</option>
-                    <option value="1">1 - Mild</option>
-                    <option value="2">2 - Moderate</option>
-                    <option value="3">3 - Severe</option>
-                </select>
-            </div>
-            
-            <div class="select-wrapper">
-                <select id="streamSelect" class="option-select">
-                    <option value="">Stream Type</option>
-                    <option value="Strong">Strong</option>
-                    <option value="Intermittent">Intermittent</option>
-                    <option value="Weak">Weak</option>
-                </select>
-            </div>
-            
-            <div class="timer-controls">
-                <button id="saveBtn" class="watch-btn btn-success">Save</button>
-                <button id="cancelBtn" class="watch-btn btn-danger">Cancel</button>
-            </div>
-        </div>
-        
-        <!-- History Screen -->
-        <div class="history-screen" id="historyScreen">
-            <div class="history-title">Recent Entries</div>
-            <div class="history-list" id="historyList">
-                <!-- Entries will be inserted here -->
-            </div>
-            <div class="timer-controls" style="margin-top: 15px;">
-                <button id="backBtn" class="watch-btn btn-secondary">Back</button>
-            </div>
-        </div>
-        
-        <!-- Navigation Dots -->
-        <div class="nav-dots">
-            <div class="dot active" data-screen="timer"></div>
-            <div class="dot" data-screen="results"></div>
-            <div class="dot" data-screen="history"></div>
-        </div>
-        
-        <!-- Toast Message -->
-        <div class="toast" id="toast"></div>
+    <!-- Timer Screen -->
+    <div id="timerScreen">
+        <h3>Bladder Timer</h3>
+        <div class="timer" id="timerDisplay">00:00</div>
+        <button id="startBtn">Start</button>
+        <button id="historyBtn">History</button>
+    </div>
+    
+    <!-- Results Screen -->
+    <div id="resultsScreen" class="hidden">
+        <h3>Record</h3>
+        <div class="timer" id="resultValue">0 seconds</div>
+        <select id="urgencySelect">
+            <option value="">Urgency Level</option>
+            <option value="0">0 - None</option>
+            <option value="1">1 - Mild</option>
+            <option value="2">2 - Moderate</option>
+            <option value="3">3 - Severe</option>
+        </select>
+        <select id="streamSelect">
+            <option value="">Stream Type</option>
+            <option value="Strong">Strong</option>
+            <option value="Intermittent">Intermittent</option>
+            <option value="Weak">Weak</option>
+        </select>
+        <button id="saveBtn" class="success">Save</button>
+        <button id="cancelBtn" class="danger">Cancel</button>
+    </div>
+    
+    <!-- History Screen -->
+    <div id="historyScreen" class="hidden">
+        <h3>Recent Entries</h3>
+        <div id="historyList" style="text-align:left;margin-top:10px;"></div>
+        <button id="backBtn">Back</button>
     </div>
     
     <script>
-        // DOM Elements
+        // Basic elements
         const timerScreen = document.getElementById('timerScreen');
         const resultsScreen = document.getElementById('resultsScreen');
         const historyScreen = document.getElementById('historyScreen');
         const timerDisplay = document.getElementById('timerDisplay');
-        const timerLabel = document.getElementById('timerLabel');
-        const timerProgress = document.getElementById('timerProgress');
-        const startStopBtn = document.getElementById('startStopBtn');
+        const resultValue = document.getElementById('resultValue');
+        const historyList = document.getElementById('historyList');
+        
+        // Buttons
+        const startBtn = document.getElementById('startBtn');
         const historyBtn = document.getElementById('historyBtn');
         const saveBtn = document.getElementById('saveBtn');
         const cancelBtn = document.getElementById('cancelBtn');
         const backBtn = document.getElementById('backBtn');
-        const resultDuration = document.getElementById('resultDuration');
+        
+        // Selects
         const urgencySelect = document.getElementById('urgencySelect');
         const streamSelect = document.getElementById('streamSelect');
-        const historyList = document.getElementById('historyList');
-        const toast = document.getElementById('toast');
-        const dots = document.querySelectorAll('.dot');
-        const syncIndicator = document.getElementById('syncIndicator');
-        const watchContainer = document.querySelector('.watch-container');
         
         // Timer variables
         let timerActive = false;
         let timerStart = 0;
         let timerInterval = null;
-        let waterDropInterval = null;
         let elapsedSeconds = 0;
-        let currentScreen = 'timer';
+        
+        // Entries array
         let entries = [];
         
-        // Apple Watch specific interactions (swipe between screens)
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        // Check if localStorage is available
-        let localStorageAvailable = false;
+        // Try loading from storage
         try {
-            localStorage.setItem("test", "test");
-            localStorage.removeItem("test");
-            localStorageAvailable = true;
+            const stored = localStorage.getItem('bladderDiaryEntries');
+            if (stored) {
+                entries = JSON.parse(stored);
+            }
         } catch (e) {
-            console.error("localStorage not available:", e);
-            syncIndicator.style.background = "linear-gradient(135deg, #FF5F6D, #FFC371)";
+            console.error("Storage error:", e);
         }
         
-        // Create water drop effect
-        function createWaterDrop() {
-            const drop = document.createElement('div');
-            drop.className = 'water-drop';
+        // Show screen
+        function showScreen(screen) {
+            timerScreen.classList.add('hidden');
+            resultsScreen.classList.add('hidden');
+            historyScreen.classList.add('hidden');
             
-            // Random position
-            const leftPos = 85 + Math.random() * 230;
-            drop.style.left = `${leftPos}px`;
-            
-            // Add to container
-            watchContainer.appendChild(drop);
-            
-            // Remove after animation completes
-            setTimeout(() => {
-                drop.remove();
-            }, 3000);
-        }
-        
-        // Update timer progress (circular)
-        function updateTimerProgress(seconds) {
-            // For visualization, we'll consider 60 seconds as a full circle
-            // After that it will continue to cycle
-            const cycleSeconds = seconds % 60;
-            const percentage = (cycleSeconds / 60) * 100;
-            
-            // Update the conic gradient
-            timerProgress.style.background = `conic-gradient(
-                #65C7F7 ${percentage}%,
-                transparent ${percentage}%,
-                transparent 100%
-            )`;
-        }
-        
-        // Load entries from storage
-        function loadEntries() {
-            try {
-                if (localStorageAvailable) {
-                    const stored = localStorage.getItem('bladderDiaryEntries');
-                    if (stored) {
-                        entries = JSON.parse(stored);
-                        updateHistoryList();
-                    }
-                }
-            } catch (e) {
-                console.error("Error loading entries:", e);
-                showToast("Error loading entries");
+            if (screen === 'timer') {
+                timerScreen.classList.remove('hidden');
+            } else if (screen === 'results') {
+                resultsScreen.classList.remove('hidden');
+            } else if (screen === 'history') {
+                historyScreen.classList.remove('hidden');
+                updateHistory();
             }
         }
         
-        // Save entries to storage
-        function saveEntries() {
-            try {
-                if (localStorageAvailable) {
-                    localStorage.setItem('bladderDiaryEntries', JSON.stringify(entries));
-                    // Show syncing animation
-                    syncIndicator.classList.add('syncing');
-                    setTimeout(() => {
-                        syncIndicator.classList.remove('syncing');
-                    }, 1500);
-                }
-            } catch (e) {
-                console.error("Error saving entries:", e);
-                showToast("Error saving entries");
-            }
-        }
-        
-        // Update history list
-        function updateHistoryList() {
-            historyList.innerHTML = '';
-            
-            if (entries.length === 0) {
-                const emptyItem = document.createElement('div');
-                emptyItem.className = 'history-item';
-                emptyItem.innerHTML = '<div style="text-align:center;padding:10px;">No entries yet</div>';
-                historyList.appendChild(emptyItem);
-                return;
-            }
-            
-            // Sort entries by date and time (newest first)
-            const sortedEntries = entries.slice().sort((a, b) => {
-                // Compare dates
-                if (a.date !== b.date) {
-                    return a.date < b.date ? 1 : -1;
-                }
-                // If dates are the same, compare times
-                return a.time < b.time ? 1 : -1;
-            });
-            
-            // Show only the 10 most recent entries
-            const recentEntries = sortedEntries.slice(0, 10);
-            
-            recentEntries.forEach(entry => {
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                
-                const dateEl = document.createElement('div');
-                dateEl.className = 'history-date';
-                
-                // Format date as: Feb 25 at 19:36
-                const dateParts = entry.date.split('-');
-                const month = new Date(entry.date).toLocaleString('en', { month: 'short' });
-                dateEl.textContent = `${month} ${dateParts[2]} at ${entry.time}`;
-                
-                item.appendChild(dateEl);
-                
-                // Duration
-                const duration = document.createElement('div');
-                duration.className = 'history-detail';
-                duration.innerHTML = `<span class="history-label">Duration:</span><span class="history-value">${entry.urineVolume}s</span>`;
-                
-                // Urgency
-                const urgency = document.createElement('div');
-                urgency.className = 'history-detail';
-                urgency.innerHTML = `<span class="history-label">Urgency:</span><span class="history-value">${entry.urgency || 'N/A'}</span>`;
-                
-                // Stream
-                const stream = document.createElement('div');
-                stream.className = 'history-detail';
-                stream.innerHTML = `<span class="history-label">Stream:</span><span class="history-value">${entry.urineStream || 'N/A'}</span>`;
-                
-                item.appendChild(duration);
-                item.appendChild(urgency);
-                item.appendChild(stream);
-                
-                historyList.appendChild(item);
-            });
-        }
-        
-        // Format timer display (MM:SS)
+        // Format time as MM:SS
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        }
-        
-        // Show toast message
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add('visible');
-            
-            // Provide haptic feedback simulation
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate(50);
-            }
-            
-            setTimeout(() => {
-                toast.classList.remove('visible');
-            }, 2000);
-        }
-        
-        // Switch between screens with animation
-        function showScreen(screenName) {
-            // Remove transition class from all screens
-            timerScreen.classList.remove('screen-transition');
-            resultsScreen.classList.remove('screen-transition');
-            historyScreen.classList.remove('screen-transition');
-            
-            // Hide all screens first
-            timerScreen.style.display = 'none';
-            resultsScreen.style.display = 'none';
-            historyScreen.style.display = 'none';
-            
-            currentScreen = screenName;
-            
-            // Show selected screen with transition
-            switch(screenName) {
-                case 'timer':
-                    timerScreen.style.display = 'flex';
-                    timerScreen.classList.add('screen-transition');
-                    break;
-                case 'results':
-                    resultsScreen.style.display = 'flex';
-                    resultsScreen.classList.add('screen-transition');
-                    break;
-                case 'history':
-                    historyScreen.style.display = 'flex';
-                    historyScreen.classList.add('screen-transition');
-                    updateHistoryList();
-                    break;
-            }
-            
-            // Update navigation dots
-            dots.forEach(dot => {
-                if (dot.dataset.screen === screenName) {
-                    dot.classList.add('active');
-                } else {
-                    dot.classList.remove('active');
-                }
-            });
-            
-            // Provide haptic feedback simulation
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate(10);
-            }
         }
         
         // Start/stop timer
@@ -783,52 +161,64 @@
                 timerActive = true;
                 timerStart = Date.now();
                 elapsedSeconds = 0;
-                
-                // Update UI
-                startStopBtn.textContent = 'Stop';
-                startStopBtn.classList.add('btn-danger');
-                startStopBtn.classList.remove('btn-success');
-                timerDisplay.style.color = '#65C7F7';
-                timerLabel.style.color = '#65C7F7';
-                
-                // Start water drop animation
-                waterDropInterval = setInterval(createWaterDrop, 800);
+                startBtn.textContent = 'Stop';
+                startBtn.classList.add('danger');
                 
                 // Update timer display
                 timerInterval = setInterval(() => {
                     elapsedSeconds = Math.floor((Date.now() - timerStart) / 1000);
                     timerDisplay.textContent = formatTime(elapsedSeconds);
-                    updateTimerProgress(elapsedSeconds);
-                }, 100);
-                
-                // Provide haptic feedback
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate(50);
-                }
+                }, 1000);
             } else {
                 // Stop timer
                 timerActive = false;
                 clearInterval(timerInterval);
-                clearInterval(waterDropInterval);
+                startBtn.textContent = 'Start';
+                startBtn.classList.remove('danger');
                 
-                // Reset UI
-                startStopBtn.textContent = 'Start';
-                startStopBtn.classList.remove('btn-danger');
-                timerDisplay.style.color = '#fff';
-                timerLabel.style.color = 'rgba(255, 255, 255, 0.7)';
-                
-                // Show results screen
-                resultDuration.textContent = `${elapsedSeconds} seconds`;
+                // Show results
+                resultValue.textContent = `${elapsedSeconds} seconds`;
                 showScreen('results');
-                
-                // Provide haptic feedback
-                if (window.navigator.vibrate) {
-                    window.navigator.vibrate([30, 50, 30]);
-                }
             }
         }
         
-        // Save current entry
+        // Update history list
+        function updateHistory() {
+            historyList.innerHTML = '';
+            
+            if (entries.length === 0) {
+                historyList.innerHTML = '<p>No entries yet</p>';
+                return;
+            }
+            
+            // Sort by date (newest first)
+            const recent = entries.slice().sort((a, b) => {
+                if (a.date !== b.date) return a.date < b.date ? 1 : -1;
+                return a.time < b.time ? 1 : -1;
+            }).slice(0, 5); // Only show 5 most recent
+            
+            // Create list
+            recent.forEach(entry => {
+                const item = document.createElement('div');
+                item.style.marginBottom = '10px';
+                item.style.padding = '5px';
+                item.style.borderBottom = '1px solid #333';
+                
+                // Format date: Feb 25, 19:36
+                const dateParts = entry.date.split('-');
+                const month = new Date(entry.date).toLocaleString('en', { month: 'short' });
+                
+                item.innerHTML = `
+                    <div style="font-size:12px;opacity:0.7">${month} ${dateParts[2]}, ${entry.time}</div>
+                    <div>${entry.urineVolume}s (Urg: ${entry.urgency || '-'})</div>
+                    <div>Stream: ${entry.urineStream || '-'}</div>
+                `;
+                
+                historyList.appendChild(item);
+            });
+        }
+        
+        // Save entry
         function saveEntry() {
             // Get current date and time
             const now = new Date();
@@ -838,8 +228,8 @@
             const hours = String(now.getHours()).padStart(2, '0');
             const minutes = String(now.getMinutes()).padStart(2, '0');
             
-            // Create new entry
-            const newEntry = {
+            // Create entry
+            const entry = {
                 date: `${year}-${month}-${day}`,
                 time: `${hours}:${minutes}`,
                 urineVolume: elapsedSeconds.toString(),
@@ -847,87 +237,40 @@
                 urineStream: streamSelect.value
             };
             
-            // Add to entries array
-            entries.push(newEntry);
+            // Add to array
+            entries.push(entry);
             
-            // Save entries
-            saveEntries();
-            
-            // Reset and go back to timer
-            resetTimer();
-            showToast('Entry saved');
-            
-            // Provide haptic feedback
-            if (window.navigator.vibrate) {
-                window.navigator.vibrate([20, 30, 20, 30, 20]);
+            // Try to save
+            try {
+                localStorage.setItem('bladderDiaryEntries', JSON.stringify(entries));
+                alert("Entry saved");
+            } catch (e) {
+                console.error("Save error:", e);
+                alert("Error saving");
             }
+            
+            // Reset
+            resetTimer();
         }
         
-        // Reset timer and go back to timer screen
+        // Reset timer
         function resetTimer() {
             timerActive = false;
             clearInterval(timerInterval);
-            clearInterval(waterDropInterval);
             timerDisplay.textContent = '00:00';
-            timerDisplay.style.color = '#fff';
-            timerLabel.style.color = 'rgba(255, 255, 255, 0.7)';
-            updateTimerProgress(0);
-            startStopBtn.textContent = 'Start';
-            startStopBtn.classList.remove('btn-danger');
+            startBtn.textContent = 'Start';
+            startBtn.classList.remove('danger');
             urgencySelect.value = '';
             streamSelect.value = '';
             showScreen('timer');
         }
         
-        // Event listeners
-        startStopBtn.addEventListener('click', toggleTimer);
+        // Add event listeners
+        startBtn.addEventListener('click', toggleTimer);
+        historyBtn.addEventListener('click', () => showScreen('history'));
         saveBtn.addEventListener('click', saveEntry);
         cancelBtn.addEventListener('click', resetTimer);
-        historyBtn.addEventListener('click', () => showScreen('history'));
         backBtn.addEventListener('click', () => showScreen('timer'));
-        
-        // Touch event handlers for swipe navigation
-        document.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-        }, { passive: true });
-        
-        document.addEventListener('touchend', e => {
-            touchEndX = e.changedTouches[0].clientX;
-            handleSwipe();
-        }, { passive: true });
-        
-        function handleSwipe() {
-            const swipeDistance = touchEndX - touchStartX;
-            
-            // Minimum swipe distance (20% of screen width)
-            const minSwipeDistance = window.innerWidth * 0.2;
-            
-            if (Math.abs(swipeDistance) < minSwipeDistance) {
-                return; // Not a significant swipe
-            }
-            
-            if (swipeDistance > 0) {
-                // Swipe right (go to previous screen)
-                if (currentScreen === 'results') showScreen('timer');
-                else if (currentScreen === 'history') showScreen('results');
-            } else {
-                // Swipe left (go to next screen)
-                if (currentScreen === 'timer') showScreen('results');
-                else if (currentScreen === 'results') showScreen('history');
-            }
-        }
-        
-        // Add click listeners to navigation dots
-        dots.forEach(dot => {
-            dot.addEventListener('click', () => {
-                showScreen(dot.dataset.screen);
-            });
-        });
-        
-        // Initialize
-        loadEntries();
-        showScreen('timer');
-        updateTimerProgress(0);
     </script>
 </body>
 </html>
